@@ -1,641 +1,380 @@
-# RAT Educational Lab
+# 🎓 RAT-C2 — Laboratorio Educativo de Ciberseguridad
 
-## Descripción del Proyecto
+> **⚠️ AVISO LEGAL:** Este proyecto es exclusivamente educativo. Solo debe
+> usarse en entornos controlados de laboratorio con autorización explícita.
+> El uso no autorizado es ilegal. Ver [DISCLAIMER.md](DISCLAIMER.md).
 
-Este es un **laboratorio educativo completo de ciberseguridad** diseñado para enseñar tanto técnicas ofensivas como defensivas en un entorno controlado y seguro. El laboratorio simula un escenario completo de Red Team vs Blue Team utilizando un Remote Access Trojan (RAT) que se comunica a través de Discord.
+---
 
-## Advertencia Legal
+## 📌 ¿Qué es este proyecto?
+
+Un laboratorio educativo que demuestra cómo funciona un **RAT** (Remote Access
+Trojan) y su infraestructura **C2** (Command and Control) usando **Discord**
+como canal de comunicación entre el atacante y la víctima.
+
+### Arquitectura
 
 ```
-⚠️ LABORATORIO EDUCATIVO DE CIBERSEGURIDAD - RAT SECURITY LAB
-
-⚠️ USO PROHIBIDO:
-✗ Sistemas de producción sin autorización
-✗ Redes corporativas o personales sin permiso
-✗ Computadoras en internet sin consentimiento del propietario
-✗ Actividades maliciosas o ilegales de cualquier tipo
-
-✅ USO PERMITIDO:
-✓ Laboratorios académicos en universidades
-✓ Entornos de prueba aislados (VMs sin internet)
-✓ Competencias de seguridad (CTF)
-✓ Investigación de malware en sandboxes controlados
-✓ Entrenamiento de respuesta a incidentes (DFIR)
-
-🎯 ESENCIAL PARA:
-• Analistas de malware
-• Equipos de respuesta a incidentes (DFIR)
-• Ingenieros de defensa cibernética
-• Investigadores de seguridad
+┌─────────────────┐         ┌──────────────────┐         ┌─────────────────┐
+│   VÍCTIMA       │         │   DISCORD (C2)    │         │   ATACANTE      │
+│                 │  envía  │                  │  recibe │                 │
+│  victim/        │────────▶│  Canal #general  │◀────────│  attacker/      │
+│  client.py      │         │                  │         │  bot.py         │
+│                 │◀────────│                  │────────▶│                 │
+│  5 módulos      │ recibe  │                  │  envía  │  Panel de       │
+│                 │ comandos│                  │ comandos│  control        │
+└─────────────────┘         └──────────────────┘         └─────────────────┘
 ```
 
-## Estructura del Proyecto
+**Flujo:**
+1. El **atacante** ejecuta `bot.py` → se conecta a Discord
+2. La **víctima** ejecuta `client.py` → se conecta al mismo canal
+3. La víctima envía su info del sistema al canal
+4. El atacante escribe comandos (`!shell`, `!screenshot`, etc.)
+5. La víctima ejecuta los comandos y responde en Discord
+
+---
+
+## 📁 Estructura del proyecto
 
 ```
 rat-educational-lab/
-├── victim/                    # Payload del RAT (5 clases principales)
-│   ├── modules/             # Módulos del payload
-│   │   ├── environment.py   # Verificación de entorno y evasión
-│   │   ├── persistence.py  # Técnicas de persistencia
-│   │   ├── intelligence.py # Recopilación de inteligencia
-│   │   ├── discord_c2.py    # Cliente C2 Discord
-│   │   └── commands.py      # Ejecutor de comandos
-│   ├── victim/             # Archivo principal del payload
-│   │   └── client.py
-│   ├── requirements.txt    # Dependencias del victim
-│   └── README.md           # Documentación del victim
+├── attacker/                  # 🤖 Centro de comando (atacante)
+│   ├── bot.py                 #    Bot de Discord C2
+│   ├── .env                   #    Token y configuración (NO subir a git)
+│   ├── commands.py            #    Comandos del panel
+│   ├── config.py              #    Configuración
+│   ├── requirements.txt       #    Dependencias
+│   └── README.md
 │
-├── attacker/                # Centro de comando C2
-│   ├── bot.py              # Bot principal de Discord
-│   ├── commands.py         # Comandos del panel de control
-│   ├── config.py           # Configuración
-│   ├── requirements.txt    # Dependencias del atacante
-│   └── README.md           # Documentación del atacante
+├── victim/                    # 💻 Payload de la víctima
+│   ├── client.py              #    Script principal de la víctima
+│   ├── modules/
+│   │   ├── environment.py     #    Detección de sandbox/VM/debugger
+│   │   ├── persistence.py     #    Técnicas de persistencia
+│   │   ├── intelligence.py    #    Recopilación de información
+│   │   ├── discord_c2.py      #    Cliente C2 vía Discord
+│   │   └── commands.py        #    Ejecutor de comandos remotos
+│   ├── requirements.txt       #    Dependencias
+│   └── README.md
 │
-├── docs/                    # Documentación educativa
-│   ├── analisis_tecnnicas.md    # Análisis de técnicas utilizadas
-│   └── contramedidas.md       # Guías de detección y remediación
-│
-├── LICENSE.md              # Aviso legal completo
-└── README.md               # Este archivo (README principal)
+├── test_connection.py         # 🔍 Test de conexión del bot
+├── docs/                      # 📚 Documentación educativa
+├── DISCLAIMER.md              # ⚠️ Aviso legal
+├── LICENSE.md                 # 📄 Licencia
+└── README.md                  # 📖 Este archivo
 ```
 
-## Componentes del Laboratorio
+---
 
-### 1. Payload del RAT (Victim)
+## 🛠️ Configuración del Bot en Discord
 
-#### Módulo 1: Verificación de Entorno (`modules/environment.py`)
-- **Propósito:** Entender cómo el malware detecta sandboxes y evita análisis
-- **Técnicas:**
-  - Detección de usuarios/hostnames de sandbox
-  - Detección de procesos de análisis (Wireshark, ProcMon, debuggers)
-  - Verificación de recursos del sistema (RAM baja, pocos cores, uptime corto)
-  - Detección de actividad de mouse (inusual en sandboxes)
-- **Uso educativo:** Entender técnicas de evasión del malware real
+### Paso 1: Crear la aplicación
 
-#### Módulo 2: Persistencia (`modules/persistence.py`)
-- **Propósito:** Implementar y detectar técnicas comunes de persistencia
-- **Técnicas:**
-  - Clave de registry Run (HKCU\Software\Microsoft\Windows\CurrentVersion\Run)
-  - Carpeta de inicio con accesos directos
-  - Tareas programadas con privilegios SYSTEM
-  - Suscripciones WMI fileless (eventos al iniciar Windows)
-- **Uso educativo:** Aprender cómo el malware mantiene acceso persistente
+1. Ve a **https://discord.com/developers/applications**
+2. Haz clic en **"New Application"** → ponle un nombre → **"Create"**
 
-#### Módulo 3: Recopilación de Inteligencia (`modules/intelligence.py`)
-- **Propósito:** Entender técnicas de reconocimiento post-explotación
-- **Información recopilada:**
-  - Información del sistema (plataforma, versión, arquitectura)
-  - Información de red (IPs, interfaces, hostname)
-  - Información del usuario (permisos, rutas)
-  - Información del hardware (cores, RAM, discos)
-  - Software instalado (para exploits adicionales)
-  - Estado de seguridad (antivirus, firewall)
-  - Información de navegadores (Chrome, Firefox, Edge)
-  - Archivos sensibles encontrados en el sistema
-  - Contraseñas WiFi guardadas
-- **Uso educativo:** Entender lo que el malware recopila después de la explotación
+### Paso 2: Crear el bot
 
-#### Módulo 4: Cliente C2 Discord (`modules/discord_c2.py`)
-- **Propósito:** Entender cómo los atacantes usan plataformas legítimas para C2
-- **Características:**
-  - Comunicación asíncrona con bot de Discord
-  - Protocolo de comandos para el atacante
-  - Envío de archivos y capturas de pantalla
-  - System fingerprinting para el atacante
-- **Uso educativo:** Entender arquitecturas C2 y exfiltración de datos
+1. En el menú lateral, ve a **"Bot"**
+2. Haz clic en **"Add Bot"** → **"Yes, do it!"**
+3. ⚠️ **ACTIVA estos 3 Intents** (obligatorio):
 
-#### Módulo 5: Ejecutor de Comandos (`modules/commands.py`)
-- **Propósito:** Entender capacidades típicas de RATs
-- **Comandos implementados:**
-  - `!help` - Mostrar comandos disponibles
-  - `!info` - Información del sistema
-  - `!shell <comando>` - Ejecutar comandos shell remotos
-  - `!screenshot` - Capturar pantalla
-  - `!download <archivo>` - Descargar archivos
-  - `!upload` - Recibir archivos
-  - `!ls <ruta>` - Listar archivos
-  - `!cd <ruta>` - Cambiar directorio
-  - `!cat <archivo>` - Ver contenido de archivo
-  - `!processes` - Listar procesos activos
-  - `!kill <pid>` - Terminar procesos
-  - `!webcam` - Foto de webcam
-  - `!record <segundos>` - Grabar audio
-  - `!persist` - Establecer persistencia
-  - `!elevate` - Intentar elevación de privilegios
-  - `!shutdown` - Apagar sistema
-  - `!reboot` - Reiniciar sistema
-  - `!exit` - Cerrar sesión RAT
-- **Uso educativo:** Entender capacidades típicas de RATs reales
+   | Intent | Estado |
+   |--------|--------|
+   | PRESENCE INTENT | ✅ ON |
+   | SERVER MEMBERS INTENT | ✅ ON |
+   | MESSAGE CONTENT INTENT | ✅ ON |
 
-#### Archivo Principal del Payload (`victim/client.py`)
-- **Propósito:** Orquestar todos los módulos del RAT
-- **Flujo:**
-  1. **Fase 1 - Verificación de Entorno:** Detecta sandboxes y debuggers
-  2. **Fase 2 - Evasión:** Delay aleatorio para evadir análisis automático
-  3. **Fase 3 - Persistencia:** Establece todas las técnicas de persistencia
-  4. **Fase 4 - Recopilación de Inteligencia:** Recopila información del sistema
-  5. **Fase 5 - Conexión C2:** Conecta con bot Discord
-  6. **Fase 6 - Loop de Comandos:** Escucha y ejecuta comandos del atacante
+4. Haz clic en **"Reset Token"** y **copia el token** (empieza con `MTU...`)
+   - ⚠️ Se muestra solo una vez. Guárdalo bien.
 
-### 2. Centro de Comando (Attacker)
+### Paso 3: Invitar el bot al servidor
 
-#### Bot Principal (`attacker/bot.py`)
-- **Propósito:** Proporcionar interfaz de control al atacante
-- **Características:**
-  - Bot de Discord con todos los permisos necesarios
-  - Comandos del panel: `!sessions`, `!broadcast`, `!cleanup`
-  - Logging de todas las acciones para análisis forense
-  - Sesiones activas rastreadas
+1. Ve a **"OAuth2"** → **"URL Generator"**
+2. En **Scopes** marca: `bot` y `applications.commands`
+3. En **Bot Permissions** marca: `Administrator`
+4. Copia la **URL** generada al fondo de la página
+5. Ábrela en tu navegador → selecciona tu servidor → **"Autorizar"**
 
-#### Módulo de Comandos (`attacker/commands.py`)
-- **Propósito:** Gestionar comandos del panel de control
-- **Características:**
-  - Gestión de sesiones activas
-  - Comandos de broadcast a todas las víctimas
-  - Herramientas de limpieza y mantenimiento
-  - Logging de acciones del atacante
+### Paso 4: Obtener el Channel ID
 
-#### Configuración (`attacker/config.py`)
-- **Propósito:** Gestionar configuración centralizada
-- **Características:**
-  - Variables de entorno para tokens y IDs
-  - Esquema de validación
-  - Configuración del servidor
-  - Configuración de logging
+1. En Discord, ve a **Configuración de Usuario** (⚙️) → **Avanzado**
+2. Activa **"Modo Desarrollador"**
+3. **Clic derecho** en el canal de texto (ej: `#general`)
+4. **"Copiar ID del Canal"**
+5. ⚠️ Este ID es diferente al ID del servidor. Ejemplo:
+   - Servidor ID: `1559156938573357109`
+   - Canal ID:    `1559156939974250559` ← Este es el que necesitas
 
-### 3. Documentación Educativa
+---
 
-#### Documentación de Análisis (`docs/analisis_tecnnicas.md`)
-- **Propósito:** Explicar en detalle cada técnica implementada
-- **Contenido:**
-  - Técnicas de evasión y anti-análisis
-  - Múltiples vectores de persistencia
-  - Métodos de reconocimiento post-explotación
-  - Arquitecturas C2 vía Discord
-  - Capacidades completas del RAT
-  - Técnicas de evasión adicionales
+## 🚀 Instalación
 
-#### Guía de Contramedidas (`docs/contramedidas.md`)
-- **Propósito:** Proporcionar herramientas defensivas
-- **Contenido:**
-  - Técnicas de detección para cada amenaza
-  - Scripts de detección automatizados
-  - Guías de remediación
-  - Protocolos de respuesta a incidentes
-  - Reglas YARA y Sigma
-  - Mejores prácticas de seguridad
+### Requisitos
 
-### 4. Aviso Legal (`LICENSE.md`)
-- **Propósito:** Garantizar uso ético y legal
-- **Contenido:**
-  - Restricciones estrictas de uso
-  - Requisitos de entorno
-  - Advertencias visibles en código
-  - Procedimientos de supervisión
-  - Contacto para soporte
+- Python 3.10+
+- Una cuenta de Discord
+- Un servidor de Discord propio
 
-## Instalación y Setup
+### Pasos
 
-### Prerrequisitos
-
-1. **Crear entorno virtual (recomendado)**
 ```bash
-python -m venv rat-lab-env
-source rat-lab-env/bin/activate  # Linux/Mac
-rat-lab-env\Scripts\activate     # Windows
-```
+# 1. Clonar el repositorio
+git clone https://github.com/HubertUi/RAT-c2.git
+cd RAT-c2
 
-2. **Instalar dependencias**
-```bash
-# Victim
-pip install -r victim/requirements.txt
+# 2. Crear entorno virtual
+python3 -m venv venv
 
-# Attacker  
+# 3. Activar entorno virtual
+source venv/bin/activate        # Linux/macOS
+venv\Scripts\activate           # Windows
+
+# 4. Instalar dependencias
 pip install -r attacker/requirements.txt
-```
-
-### Configurar Variables de Entorno
-
-#### Archivo .env (víctima)
-```bash
-# victim/.env
-DISCORD_BOT_TOKEN=tu_token_del_bot_aqui
-COMMAND_CHANNEL_ID=id_del_canal_aqui
-RAT_ALLOW_SANDBOX=0  # 1 para testing en sandbox
-```
-
-#### Archivo .env (atacante)
-```bash
-# attacker/.env
-DISCORD_BOT_TOKEN=tu_token_del_bot_aqui
-COMMAND_CHANNEL_ID=id_del_canal_aqui
-```
-
-### Configurar Bot de Discord
-
-1. **Crear aplicación**
-   - Visitar: https://discord.com/developers/applications
-   - Hacer clic en "New Application" → "Bot"
-   - Copiar token del bot
-
-2. **Configurar permisos**
-   - Ir a OAuth2 → URL de autorización
-   - Seleccionar canal de comandos
-   - Copiar URL de invitación
-
-3. **Configurar variables de entorno**
-   - Ingresar token del bot
-   - Ingresar ID del canal de comandos
-
-## Ejecución del Laboratorio
-
-### Terminal 1 - Centro de Comando (Atacante)
-```bash
-# Navegar al directorio
-mkdir -p rat-educational-lab/attacker
-cd rat-educational-lab/attacker
-
-# Instalar dependencias
-pip install -r attacker/requirements.txt
-
-# Ejecutar bot C2
-python bot.py
-```
-
-### Terminal 2 - Víctima (Máquina Comprometida)
-```bash
-# Navegar al directorio
-mkdir -p rat-educational-lab/victim
-cd rat-educational-lab/victim
-
-# Instalar dependencias
 pip install -r victim/requirements.txt
-
-# Ejecutar RAT
-python client.py --token "TU_TOKEN" --channel "ID_DEL_CANAL"
-
-# Para testing en sandbox (solo VMs autorizadas)
-python client.py --token "TU_TOKEN" --channel "ID_DEL_CANAL" --allow-sandbox
 ```
 
-## Escenarios de Prueba
+---
 
-### Escenario 1: Detección de Sandbox
-**Objetivo:** Entender cómo el malware detecta análisis
+## ⚙️ Configuración
 
-**Configuración:**
+Crea el archivo `attacker/.env`:
+
+```env
+DISCORD_BOT_TOKEN=tu_token_aqui
+COMMAND_CHANNEL_ID=tu_channel_id_aqui
+```
+
+| Variable | Descripción |
+|----------|-------------|
+| `DISCORD_BOT_TOKEN` | Token del bot (Paso 2) |
+| `COMMAND_CHANNEL_ID` | ID del canal de texto (Paso 4) |
+
+> ⚠️ El archivo `.env` está en `.gitignore` — **NUNCA** lo subas a GitHub.
+
+---
+
+## ▶️ Ejecución
+
+### 1. Probar la conexión
+
 ```bash
-# Ejecutar en máquina virtual con nombres de sandbox
-# (Esta es una máquina virtual educativa controlada)
+source venv/bin/activate
+python test_connection.py
 ```
 
-**Resultado esperado:**
-- RAT detecta sandbox
-- Envía mensaje de "Entorno de análisis detectado"
-- Termina ejecución si RAT_ALLOW_SANDBOX no está establecido
+Verás algo como:
 
-### Escenario 2: Análisis de Persistencia
-**Objetivo:** Establecer y detectar técnicas de persistencia
+```
+==================================================
+TEST DE CONEXIÓN - BOT C2 DISCORD
+==================================================
 
-**Técnicas a verificar:**
-1. **Clave de registro Run**
-2. **Acceso directo en carpeta de inicio**
-3. **Tarea programada**
-4. **Suscripción WMI**
+[1] Token cargado: MTU1ODk3NzIxMjA5NzQ5NTE5M...
+[2] Channel ID: 1559156939974250559
 
-**Verificar después de ejecución:**
-```powershell
-# En máquina víctima
-Get-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Run
-Get-ScheduledTask | Where-Object {$_.Actions.Execute -like "*update*"}
+[0] Conectando a Discord...
+
+[3] ✅ Bot conectado como: RAT-C2#0196
+[4] ✅ ID del bot: 1558977212097495191
+[5] ✅ Servidores conectados: 1
+    - RAT - C2 lab (ID: 1559156938573357109)
+
+[6] ✅ Canal encontrado: #general
+[7] ✅ Tipo de canal: text
+[8] ✅ Mensaje enviado al canal #general
+
+✅ TODOS LOS TESTS PASARON CORRECTAMENTE
 ```
 
-### Escenario 3: Monitor de Red
-**Objetivo:** Capturar tráfico C2
+Si todo funciona, verás un **embed verde** en Discord: *"🟢 TEST EXITOSO"*.
 
-**Herramientas:**
-- Wireshark para captura de paquetes
-- tcpdump para captura en línea
-- Analizar tráfico HTTPS a Discord
+### 2. Iniciar el bot atacante
 
-### Escenario 4: Análisis Forense
-**Objetivo:** Investigar artifacts del RAT
+```bash
+source venv/bin/activate
+python -u attacker/bot.py
+```
 
-**Artefacts:**
-- Claves de registro
+Salida esperada:
+
+```
+[+] Bot conectado como: RAT-C2#0196
+[+] Canal de comandos: 1559156939974250559
+```
+
+En Discord aparecerá: *"C2 Server Iniciado — Esperando conexiones..."*
+
+### 3. Ejecutar el payload de la víctima
+
+En **otra terminal** (o en otra máquina):
+
+```bash
+source venv/bin/activate
+python victim/client.py --token TU_TOKEN --channel TU_CHANNEL_ID
+```
+
+> Para testing en sandbox, agrega `--allow-sandbox`
+
+La víctima se conectará y enviará un embed con:
+- Sistema Operativo
+- Usuario
+- IP Pública
+- RAM
+
+---
+
+## 🎮 Comandos disponibles
+
+Los comandos se escriben en el canal de Discord con prefijo `!`:
+
+### 📁 Navegación
+
+| Comando | Descripción |
+|---------|-------------|
+| `!ls [ruta]` | Listar archivos del directorio |
+| `!cd <ruta>` | Cambiar directorio |
+| `!pwd` | Mostrar directorio actual |
+| `!cat <archivo>` | Ver contenido de un archivo |
+
+### 📥 Transferencia
+
+| Comando | Descripción |
+|---------|-------------|
+| `!download <ruta>` | Descargar archivo de la víctima |
+| `!upload` (con adjunto) | Subir archivo a la víctima |
+
+### 📸 Captura
+
+| Comando | Descripción |
+|---------|-------------|
+| `!screenshot` | Captura de pantalla |
+| `!webcam` | Foto de webcam |
+| `!record <segundos>` | Grabar audio |
+
+### ⚙️ Sistema
+
+| Comando | Descripción |
+|---------|-------------|
+| `!shell <comando>` | Ejecutar comando en la terminal |
+| `!processes` | Listar procesos activos |
+| `!kill <pid>` | Terminar un proceso |
+| `!info` | Información completa del sistema |
+
+### 🔧 Persistencia
+
+| Comando | Descripción |
+|---------|-------------|
+| `!persist` | Establecer persistencia en el sistema |
+| `!elevate` | Intentar elevación de privilegios |
+
+### 🔄 Control
+
+| Comando | Descripción |
+|---------|-------------|
+| `!shutdown` | Apagar el sistema |
+| `!reboot` | Reiniciar el sistema |
+| `!exit` | Cerrar sesión del RAT |
+| `!help` | Mostrar todos los comandos |
+
+### 🤖 Comandos del bot atacante
+
+| Comando | Descripción |
+|---------|-------------|
+| `!sessions` | Listar sesiones activas |
+| `!broadcast <msg>` | Enviar mensaje a todas las sesiones |
+| `!cleanup` | Limpiar sesiones inactivas |
+
+---
+
+## 🧩 Módulos de la víctima
+
+### 1. `environment.py` — Verificación de entorno
+- Detección de sandbox (VirtualBox, VMware, QEMU)
+- Detección de debugger
+- Verificación de análisis dinámico
+- Si detecta entorno de análisis → sale automáticamente
+
+### 2. `persistence.py` — Persistencia
+- Claves de registro de Windows
+- Carpeta de inicio
 - Tareas programadas
-- Suscripciones WMI
-- Archivos en %APPDATA%WindowsUpdate\*
-- Capturas de pantalla
-- Logs de actividades
+- WMI (Windows Management Instrumentation)
 
-## Ejemplo de Script de Setup
+### 3. `intelligence.py` — Recopilación de información
+- Sistema operativo y hardware
+- Red (IP pública, interfaces)
+- Usuario actual y privilegios
+- Software instalado
+- Datos de navegadores
 
-### setup_lab.py
-```python
-#!/usr/bin/env python3
-"""
-Script de configuración para el laboratorio educativo RAT
-"""
+### 4. `discord_c2.py` — Comunicación C2
+- Conexión a Discord como cliente
+- Registro de sesión en el canal
+- Cola de comandos asíncrona
+- Envío de archivos, capturas y mensajes
 
-import os
-import subprocess
-import sys
-from pathlib import Path
+### 5. `commands.py` — Ejecutor de comandos
+- Ejecución de comandos shell
+- Captura de pantalla
+- Transferencia de archivos
+- Gestión de procesos
+- Persistencia remota
 
-def crear_estructuras():
-    """Crea directorios y archivos necesarios"""
-    os.makedirs("victim/modules", exist_ok=True)
-    os.makedirs("attacker", exist_ok=True)
-    os.makedirs("docs", exist_ok=True)
-    print("✅ Estructuras creadas")
+---
 
-def instalar_dependencias():
-    """Instala dependencias"""
-    print("Instalando dependencias...")
-    
-    if os.path.exists("victim/requirements.txt"):
-        subprocess.run([sys.executable, "-m", "pip", "install", "-r", "victim/requirements.txt"])
-    
-    if os.path.exists("attacker/requirements.txt"):
-        subprocess.run([sys.executable, "-m", "pip", "install", "-r", "attacker/requirements.txt"])
-    
-    print("✅ Dependencias instaladas")
+## 🔍 Flujo completo de ejecución
 
-def crear_archivos_env():
-    """Crea archivos .env de ejemplo"""
-    # Victim .env
-    victim_env = """# Configuración del Payload RAT (Víctima)
-DISCORD_BOT_TOKEN=TU_TOKEN_DEL_BOT_AQUI
-COMMAND_CHANNEL_ID=ID_DEL_CANAL_DE_DISCORD
-RAT_ALLOW_SANDBOX=0  # Establecer a 1 para testing en sandbox
-"""
-    
-    with open("victim/.env", "w") as f:
-        f.write(victim_env)
-    
-    # Attacker .env
-    attacker_env = """# Configuración del Bot C2 (Atacante)
-DISCORD_BOT_TOKEN=TU_TOKEN_DEL_BOT_AQUI
-COMMAND_CHANNEL_ID=ID_DEL_CANAL_DE_DISCORD
-"""
-    
-    with open("attacker/.env", "w") as f:
-        f.write(attacker_env)
-    
-    print("✅ Archivos .env creados")
-    print("⚠️  IMPORTANTE: Editar .env con configuración real antes de ejecutar")
+```
+1. atacante ejecuta bot.py
+   └─▶ Bot se conecta a Discord
+   └─▶ Envía "C2 Server Iniciado" al canal
 
-if __name__ == "__main__":
-    print("🚀 Configurando laboratorio educativo RAT...")
-    
-    crear_estructuras()
-    instalar_dependencias()
-    crear_archivos_env()
-    
-    print("\n✅ Laboratorio listo para usar!")
-    print("\n📋 Próximos pasos:")
-    print("1. Configurar .env con tokens reales de Discord")
-    print("2. Crear bot de Discord e invitarlo")
-    print("3. Ejecutar atacante: cd attacker && python bot.py")
-    print("4. Ejecutar víctima: cd victim && python client.py --token TOKEN --channel ID")
+2. víctima ejecuta client.py
+   └─▶ Fase 1: Verifica entorno (sandbox/debugger)
+   └─▶ Fase 2: Establece persistencia
+   └─▶ Fase 3: Recopila información del sistema
+   └─▶ Fase 4: Se conecta a Discord
+   └─▶ Fase 5: Envía info al canal y entra en modo escucha
+
+3. atacante escribe comandos en Discord
+   └─▶ !shell whoami
+   └─▶ !screenshot
+   └─▶ !download C:\Users\victim\file.txt
+
+4. víctima ejecuta los comandos
+   └─▶ Responde con resultados en Discord
 ```
 
-## Uso Educativo Recomendado
+---
 
-### Para Docentes
+## ❗ Solución de problemas
 
-1. **Planificar laboratorios**
-   - Usar scenarios de prueba como ejercicios guía
-   - Crear laboratorios adicionales basados en este código
-   - Diseñar evaluaciones prácticas
-
-2. **Configurar entornos**
-   - Preparar máquinas virtuales para ejecución del laboratorio
-   - Configurar bots de Discord para el laboratorio
-   - Establecer directorios de almacenamiento seguros
-
-3. **Supervisar actividades**
-   - Asegurarse de que todo uso sea autorizado
-   - Monitorear logs de actividad
-   - Documentar todos los hallazgos
-
-### Para Estudiantes
-
-1. **Ejecutar el laboratorio**
-   - Seguir cuidadosamente las instrucciones de setup
-   - Usar solo entornos autorizados
-   - Documentar todas las observaciones
-
-2. **Aprender conceptos**
-   - Entender cómo cada módulo funciona
-   - Investigar técnicas de defensa correspondientes
-   - Practicar detección usando las guías de contramedidas
-
-3. **Reportar problemas**
-   - Informar cualquier issue técnico al instructor
-   - Reportar uso no autorizado inmediatamente
-   - Documentar hallazgos técnicos
-
-### Para Investigadores
-
-1. **Expandir el laboratorio**
-   - Agregar nuevas técnicas de ataque
-   - Desarrollar nuevas técnicas de detección
-   - Crear laboratorios derivados para cursos específicos
-
-2. **Contribuir al proyecto**
-   - Enviar pull requests con mejoras
-   - Reportar bugs y sugerencias
-   - Colaborar con otros investigadores
-
-## Contribución
-
-### Cómo Contribuir
-
-1. **Crear fork** del repositorio
-2. **Clonar** en tu máquina local:
-```bash
-git clone https://github.com/[usuario]/rat-educational-lab.git
-cd rat-educational-lab
-```
-
-3. **Crear rama** para tus cambios:
-```bash
-git checkout -b feature/nueva-tecnica
-```
-
-4. **Hacer commit** de tus cambios:
-```bash
-git add .
-git commit -m "Agregar [descripción]"
-git push origin feature/nueva-tecnica
-```
-
-5. **Crear pull request** en GitHub
-
-### Reglas de Contribución
-
-- Seguir convenciones de código (PEP 8)
-- Agregar pruebas para nuevas funciones
-- Documentar cambios en README.md
-- Mantener advertencias legales visibles
-- Usar nombres descriptivos para ramas
-
-### Mejoras Sugeridas
-
-#### Mejoras Técnicas
-
-1. **Ofuscación del Código**
-   - Agregar ofuscación adicional
-   - Implementar string encoding
-   - Usar técnicas anti-debugging
-
-2. **Técnicas de Evasión**
-   - Inyección de procesos (Process Doppelganger)
-   - Técnicas fileless
-   - Uso de APIs ocultas de Windows
-
-3. **C2 Avanzado**
-   - Implementar dead drops
-   - Usar servicios legítimos para exfiltración
-   - Agregar cifrado de tráfico
-
-#### Mejoras Educativas
-
-1. **Laboratorios Adicionales**
-   - RATs con firmas digitales
-   - Análisis de malware en memoria
-   - Técnicas de APT avanzadas
-
-2. **Herramientas de Detección**
-   - Scripts YARA para identificar el malware
-   - Reglas Sigma para SIEM
-   - IOCs actualizados
-
-## Créditos
-
-### Autores
-
-- **Creador principal:** [Nombre del autor]
-- **Colaboradores:** [Lista de colaboradores]
-- **Revisores:** [Lista de revisores]
-
-### Agradecimientos
-
-Agradecemos a todos los contribuidores por:
-
-- Crear este laboratorio educativo valioso
-- Contribuir conocimiento y experiencia técnica
-- Mantener estándares de calidad académica
-- Ayudar a avanzar la educación en ciberseguridad
-
-## Licencia
-
-Este proyecto está bajo **licencia educativa estricta** para uso académico únicamente. Consulte el archivo `LICENSE.md` para detalles completos.
-
-## Contacto
-
-### Para Soporte Técnico
-
-- **Problemas:** soporte@university.edu
-- **Bugs:** bug-report@university.edu
-- **Preguntas:** helpdesk@university.edu
-
-### Para Colaboración Académica
-
-- **Investigación:** research@university.edu
-- **Docentes:** faculty@university.edu
-- **Estudiantes:** students@university.edu
-
-### Para Reportar Problemas
-
-1. **Problemas técnicos:** Usar GitHub Issues
-2. **Preguntas académicas:** Contactar al instructor
-3. **Uso no autorizado:** Reportar inmediatamente a seguridad
-
-## Estado del Proyecto
-
-### ✅ Completado
-
-- [x] Módulo de verificación de entorno
-- [x] Módulo de persistencia
-- [x] Módulo de recopilación de inteligencia
-- [x] Cliente C2 Discord
-- [x] Ejecutor de comandos
-- [x] Archivo principal del payload
-- [x] Bot principal de Discord
-- [x] Módulo de comandos del atacante
-- [x] Configuración
-- [x] Documentación completa
-- [x] Aviso legal
-
-### 🔄 Próximos Pasos
-
-1. **Documentación de uso**
-   - Agregar ejemplos de casos de uso
-   - Crear guías paso a paso
-   - Documentar mejores prácticas
-
-2. **Mejoras técnicas**
-   - Implementar más técnicas de evasión
-   - Agregar detecciones más avanzadas
-   - Mejorar la ofuscación del código
-
-3. **Herramientas educativas**
-   - Agregar laboratorios de práctica
-   - Crear hojas de trucos
-   - Desarrollar cuestionarios
-
-## Última Actualización
-
-Octubre 2026 - Versión 1.0
+| Error | Causa | Solución |
+|-------|-------|----------|
+| `No module named 'discord'` | Dependencias no instaladas | `pip install -r requirements.txt` |
+| `401 Unauthorized` | Token inválido | Regenera el token en Developer Portal |
+| `Missing Access` | Bot no está en el servidor | Invita el bot con OAuth2 |
+| `Intent no habilitado` | Faltan intents | Activa los 3 intents en Paso 2 |
+| `Canal no encontrado` | ID incorrecto | Verifica que es el ID del canal, no del servidor |
+| `Permission denied` | Sin permisos | Re-invita con permiso `Administrator` |
 
 ---
 
-**Estado Actual:** Laboratorio completamente implementado y listo para uso educativo
+## 📚 Documentación adicional
 
-**Próxima Revisión:** Octubre 2027
-
-**Equipo de Desarrollo:** [Nombre del equipo]
-
----
-
-### Nota Importante
-
-Este laboratorio está **exclusivamente** para fines educativos. Todo uso debe ser en entornos **autorizados** y bajo **supervisión académica**. La no conformidad puede resultar en consecuencias académicas y legales.
-
-**¡Feliz (y seguro) hacking!** 💻🔒
+- [DISCLAIMER.md](DISCLAIMER.md) — Aviso legal completo
+- [docs/analisis_tecnicas.md](docs/analisis_tecnicas.md) — Análisis de técnicas
+- [docs/contramedidas.md](docs/contramedidas.md) — Guías de detección
 
 ---
 
-`#CiberseguridadEducativa #LaboratorioAutorizado #AprendizajeResponsable`
+## 📄 Licencia
+
+Este proyecto está bajo licencia educativa. Ver [LICENSE.md](LICENSE.md).
 
 ---
 
-**Recordatorio:**
-*Entender cómo estas herramientas funcionan es esencial para defenderlas.*
-*Usarlas responsablemente nos hace más fuertes, no más débiles.* 🛡️
-
----
-
-`La información es inofensiva solo cuando se usa responsablemente.` 💡
-`Las herramientas son inocuas solo cuando se usan con intención correcta.` 🛠️
-`El conocimiento es peligroso solo cuando se usa sin supervisión.` ⚠️
-
----
-
-`La ciberseguridad es un viaje, no un destino.` 🚶‍♂️🔐
-
----
-
-`Si encuentras este laboratorio, eres parte de la solución.` 🤝
-
----
-
-**Este proyecto es parte del programa de ciberseguridad de la universidad.**
-
----
-
-`#APRENDERAPRENDERAPRENDER #DEFENDERPRIMER# 🚀`
+**Proyecto educativo de ciberseguridad — Solo para laboratorio controlado.**
