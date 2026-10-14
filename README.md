@@ -48,6 +48,7 @@ rat-educational-lab/
 ├── victim/                    # 💻 Payload de la víctima
 │   ├── client.py              #    Script principal de la víctima
 │   ├── modules/
+│   │   ├── __init__.py        #    Paquete Python válido
 │   │   ├── environment.py     #    Detección de sandbox/VM/debugger
 │   │   ├── persistence.py     #    Técnicas de persistencia
 │   │   ├── intelligence.py    #    Recopilación de información
@@ -58,6 +59,7 @@ rat-educational-lab/
 │   └── README.md
 │
 ├── test_connection.py         # 🔍 Test de conexión del bot
+├── test_victim_modules.py     # 🧪 Test de módulos de la víctima (114 tests)
 ├── docs/                      # 📚 Documentación educativa
 ├── DISCLAIMER.md              # ⚠️ Aviso legal
 ├── LICENSE.md                 # 📄 Licencia
@@ -240,6 +242,49 @@ La víctima se conectará y enviará un embed con:
 
 ---
 
+## 🧪 Tests
+
+### Test de módulos de la víctima (114 pruebas)
+
+```bash
+source venv/bin/activate
+python test_victim_modules.py
+```
+
+**Qué verifica:**
+
+| Módulo | Pruebas | Descripción |
+|--------|---------|-------------|
+| Imports | 6 | Los 6 módulos se importan sin errores |
+| `__init__.py` | 1 | El directorio es un paquete Python válido |
+| `EnvironmentChecker` | 15 | Detección de VM, sandbox, debugger, fingerprint |
+| `IntelligenceCollector` | 18 | Recopilación de info del sistema, usuario, red |
+| `Keylogger` | 16 | Start/stop, buffer, teclas especiales, clear |
+| `CommandExecutor` | 44 | Los 17 handlers + flujo de comandos completo |
+| `PersistenceManager` | — | Se omite en Linux (requiere Windows) |
+| `DiscordC2Client` | 7 | Estructura y métodos del cliente C2 |
+| `process_queue` | 1 | Cola asíncrona de comandos |
+
+**Salida esperada:**
+
+```
+============================================================
+RESULTADO: 114 pasaron, 0 fallaron
+============================================================
+✅ TODOS LOS TESTS PASARON
+```
+
+### Test de conexión del bot
+
+```bash
+source venv/bin/activate
+python test_connection.py
+```
+
+Verifica que el bot se conecta a Discord y puede enviar mensajes al canal.
+
+---
+
 ## 🎮 Comandos disponibles
 
 Los comandos se escriben en el canal de Discord con prefijo `!`:
@@ -311,6 +356,8 @@ Los comandos se escriben en el canal de Discord con prefijo `!`:
 ---
 
 ## 🧩 Módulos de la víctima
+
+> El directorio `modules/` incluye `__init__.py` — es un paquete Python válido.
 
 ### 1. `environment.py` — Verificación de entorno
 - Detección de sandbox (VirtualBox, VMware, QEMU)
