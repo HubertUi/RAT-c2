@@ -1,4 +1,4 @@
-# 🎓 RAT-C2 — Análisis de Malware con Discord
+# RAT-C2 — con Discord
 
 > **⚠️ AVISO LEGAL:** Este proyecto debe usarse exclusivamente en entornos
 > controlados con autorización explícita. El uso no autorizado es ilegal.
