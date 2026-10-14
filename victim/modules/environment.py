@@ -4,7 +4,6 @@ Propósito educativo: Entender técnicas de evasión usadas por malware real
 """
 
 import os
-import sys
 import ctypes
 import time
 import random
@@ -101,7 +100,6 @@ class EnvironmentChecker:
     def _check_uptime(self):
         """Sandboxes suelen tener uptime muy bajo"""
         try:
-            import ctypes
             class LASTINPUTINFO(ctypes.Structure):
                 _fields_ = [("cbSize", ctypes.c_uint), ("dwTime", ctypes.c_ulong)]
             
@@ -148,7 +146,6 @@ class EnvironmentChecker:
         
         # Check PEB BeingDebugged flag
         try:
-            import ctypes
             class PEB(ctypes.Structure):
                 pass
             

