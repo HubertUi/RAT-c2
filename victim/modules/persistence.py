@@ -1,6 +1,6 @@
 """
 Módulo de persistencia - Técnicas de mantenimiento de acceso
-Propósito educativo: Entender cómo el malware mantiene persistencia
+Propósito: Entender cómo el malware mantiene persistencia
 """
 
 import os

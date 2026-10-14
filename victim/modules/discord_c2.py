@@ -1,6 +1,6 @@
 """
 Módulo de Comando y Control (C2) vía Discord
-Propósito educativo: Entender arquitectura C2 y cómo los atacantes usan plataformas legítimas
+Propósito: Entender arquitectura C2 y cómo los atacantes usan plataformas legítimas
 """
 
 import os

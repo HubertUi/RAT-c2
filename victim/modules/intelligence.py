@@ -1,6 +1,6 @@
 """
 Módulo de recopilación de inteligencia - Reconocimiento del sistema
-Propósito educativo: Entender técnicas de reconocimiento post-explotación
+Propósito: Entender técnicas de reconocimiento post-explotación
 """
 
 import os

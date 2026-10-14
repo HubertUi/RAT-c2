@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-RAT Educativo - Cliente Víctima
-PROYECTO EDUCATIVO DE CIBERSEGURIDAD
-Solo para uso en entornos controlados de laboratorio
+RAT - Cliente Víctima
+Solo para uso en entornos controlados con autorización explícita
 """
 
 import os
@@ -93,7 +92,7 @@ class RATClient:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='RAT Educativo - Proyecto de Ciberseguridad'
+        description='RAT - Cliente de acceso remoto'
     )
     parser.add_argument(
         '--token', 

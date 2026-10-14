@@ -1,14 +1,14 @@
-# 🎓 RAT-C2 — Laboratorio Educativo de Ciberseguridad
+# 🎓 RAT-C2 — Análisis de Malware con Discord
 
-> **⚠️ AVISO LEGAL:** Este proyecto es exclusivamente educativo. Solo debe
-> usarse en entornos controlados de laboratorio con autorización explícita.
-> El uso no autorizado es ilegal. Ver [DISCLAIMER.md](DISCLAIMER.md).
+> **⚠️ AVISO LEGAL:** Este proyecto debe usarse exclusivamente en entornos
+> controlados con autorización explícita. El uso no autorizado es ilegal.
+> Ver [DISCLAIMER.md](DISCLAIMER.md).
 
 ---
 
 ## 📌 ¿Qué es este proyecto?
 
-Un laboratorio educativo que demuestra cómo funciona un **RAT** (Remote Access
+Un proyecto que demuestra cómo funciona un **RAT** (Remote Access
 Trojan) y su infraestructura **C2** (Command and Control) usando **Discord**
 como canal de comunicación entre el atacante y la víctima.
 
@@ -54,13 +54,13 @@ rat-educational-lab/
 │   │   ├── intelligence.py    #    Recopilación de información
 │   │   ├── discord_c2.py      #    Cliente C2 vía Discord
 │   │   ├── commands.py        #    Ejecutor de comandos remotos
-│   │   └── keylogger.py       #    Keylogger educativo (pynput)
+│   │   └── keylogger.py       #    Keylogger (pynput)
 │   ├── requirements.txt       #    Dependencias
 │   └── README.md
 │
 ├── test_connection.py         # 🔍 Test de conexión del bot
 ├── test_victim_modules.py     # 🧪 Test de módulos de la víctima (114 tests)
-├── docs/                      # 📚 Documentación educativa
+├── docs/                      # 📚 Documentación técnica
 ├── DISCLAIMER.md              # ⚠️ Aviso legal
 ├── LICENSE.md                 # 📄 Licencia
 └── README.md                  # 📖 Este archivo
@@ -392,7 +392,7 @@ Los comandos se escriben en el canal de Discord con prefijo `!`:
 - Keylogger (start/stop/dump)
 - Persistencia remota
 
-### 6. `keylogger.py` — Keylogger educativo
+### 6. `keylogger.py` — Keylogger
 - Captura teclas usando `pynput`
 - Buffer thread-safe con `threading.Lock`
 - Detecta caracteres especiales (Enter, Shift, Ctrl, etc.)
@@ -513,7 +513,7 @@ victim/
 
 ### ⚠️ Consideraciones importantes
 
-1. **Antivirus:** Los archivos `.exe` creados con PyInstaller pueden ser detectados por antivirus (falso positivo o real). Esto es relevante para el laboratorio.
+1. **Antivirus:** Los archivos `.exe` creados con PyInstaller pueden ser detectados por antivirus (falso positivo o real).
 
 2. **Token:** El `.exe` debe tener el token y channel ID configurados. Puedes:
    - Pasarlos por argumentos: `client.exe --token XXX --channel YYY`
@@ -549,8 +549,8 @@ dist\RAT-Lab.exe --token TU_TOKEN --channel TU_CHANNEL
 
 ## 📄 Licencia
 
-Este proyecto está bajo licencia educativa. Ver [LICENSE.md](LICENSE.md).
+Este proyecto está bajo licencia propia. Ver [LICENSE.md](LICENSE.md).
 
 ---
 
-**Proyecto educativo de ciberseguridad — Solo para laboratorio controlado.**
+**Proyecto de ciberseguridad — Solo para entornos controlados con autorización.**

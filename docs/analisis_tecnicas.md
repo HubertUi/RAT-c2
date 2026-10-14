@@ -1,7 +1,7 @@
 # Análisis de Técnicas Utilizadas
 
 ## 1. Verificación de Entorno (Anti-Análisis)
-**Objetivo educativo:** Entender cómo el malware detecta sandboxes
+**Objetivo:** Entender cómo el malware detecta sandboxes
 
 Técnicas implementadas:
 - **Detección de usuarios/hostnames**: Sandboxes usan nombres predecibles
@@ -16,7 +16,7 @@ Técnicas implementadas:
 - Proveer recursos suficientes
 
 ## 2. Persistencia
-**Objetivo educativo:** Múltiples vectores de persistencia
+**Objetivo:** Múltiples vectores de persistencia
 
 Técnicas:
 - **Registry Run keys**: Clásica pero detectable

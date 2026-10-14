@@ -1,32 +1,27 @@
-# Aviso Legal Educativo - RAT Security Lab
+# Aviso Legal - RAT Security Lab
 
 ## Propósito
 
-Este laboratorio es un proyecto **educativo y académico** diseñado para enseñar técnicas de ciberseguridad defensiva y ofensiva en entornos controlados. **NO** es una herramienta para actividades maliciosas.
+Este proyecto está diseñado para demostrar técnicas de ciberseguridad defensiva y ofensiva en entornos controlados. **NO** es una herramienta para actividades maliciosas.
 
 ## Alcance y Uso
 
 ### ✅ Uso Permitido
 
-1. **Laboratorios Académicos**
-   - Universidades e instituciones educativas
-   - Cursos de ciberseguridad y análisis de malware
-   - Laboratorios de respuesta a incidentes (DFIR)
-
-2. **Entornos Controlados**
+1. **Entornos Controlados**
    - Máquinas virtuales aisladas sin conexión a internet
-   - Laboratorios dedicados con permisos explícitos
-   - Entornos de prueba y desarrollo seguros
+   - Entornos de prueba dedicados con permisos explícitos
+   - Entornos de desarrollo seguros
 
-3. **Investigación de Seguridad**
+2. **Investigación de Seguridad**
    - Análisis de malware en sandbox
    - Investigación de técnicas de ataque
    - Desarrollo de contramedidas defensivas
 
-4. **CTF y Competencias**
+3. **CTF y Competencias**
    - Juegos de captura de bandera (Capture The Flag)
    - Competencias de seguridad organizadas
-   - Desafíos educativos de hacking
+   - Desafíos de hacking autorizados
 
 ### ❌ Uso Prohibido
 
@@ -64,10 +59,6 @@ Este laboratorio es un proyecto **educativo y académico** diseñado para enseñ
 - Regulaciones de privacidad locales
 - Tratados de cooperación jurídica
 
-**Educativo:**
-- 17 CFR § 240.17Ad-20 - Exención de investigación de seguridad
-- 37 CFR § 201.40 - Excepción de DMCA para investigación
-
 ### Limitaciones Legales
 
 **Solo para Investigación:**
@@ -77,7 +68,6 @@ Este laboratorio es un proyecto **educativo y académico** diseñado para enseñ
 
 **Protecciones de Responsabilidad:**
 - Las actividades deben ser completamente documentadas
-- Debe haber mecanismos de oversight académico
 - Se deben mantener registros seguros de todas las acciones
 
 ## Protocolos de Seguridad
@@ -92,7 +82,6 @@ Este laboratorio es un proyecto **educativo y académico** diseñado para enseñ
 2. **Documentación**:
    - Registros detallados de todas las actividades
    - Reportes de uso y hallazgos
-   - Supervisión académica por instructores designados
 
 3. **Control de Acceso**:
    - Permisos mínimos necesarios
@@ -113,22 +102,16 @@ Este laboratorio es un proyecto **educativo y académico** diseñado para enseñ
 
 3. **Transparencia**:
    - Conocer los límites legales de investigación
-   - Documentar el propósito académico
+   - Documentar el propósito
    - Reportar cualquier descubrimiento accidental
 
 ## Responsabilidades
 
-### de los Estudiantes
+### del Usuario
 
 - **Legal:** Asegurarse de que todas las actividades sean legales y autorizadas
 - **Ético:** Mantener los principios éticos de la investigación
 - **Técnico:** Implementar todas las medidas de seguridad requeridas
-
-### de los Instituciones
-
-- **Supervisión:** Proporcionar oversight académico adecuado
-- **Apoyo:** Proveer recursos y herramientas necesarios
-- **Protección:** Asegurar que el uso sea completamente legal
 
 ## Implementaciones de Seguridad
 
@@ -143,8 +126,8 @@ Este laboratorio es un proyecto **educativo y académico** diseñado para enseñ
    ```python
    # Advertencia visible en el código
    """
-   ⚠️ LABORATORIO EDUCATIVO - NO USAR EN PRODUCCIÓN
-   Solo para fines académicos en entornos autorizados.
+   ⚠️ NO USAR EN PRODUCCIÓN
+   Solo para entornos autorizados.
    """
    ```
 
@@ -158,13 +141,12 @@ Este laboratorio es un proyecto **educativo y académico** diseñado para enseñ
 4. **Banner Requerido**:
    ```
    ╔═══════════════════════════════════════════════
-   ║ LABORATORIO EDUCATIVO DE CIBERSEGURIDAD        ║
    ║ RAT Security Lab v1.0                         ║
    ║                                                ║
-   ║ SOLAMENTE PARA USO ACADÉMICO AUTORIZADO       ║
-   ║ EN ENTORNOS AISLADOS Y CONTROLADOS            ║
+   ║ SOLAMENTE PARA USO AUTORIZADO                  ║
+   ║ EN ENTORNOS AISLADOS Y CONTROLADOS             ║
    ║                                                ║
-   ║ INFRACCIÓN = PROHIBIDA = ACTION LEGAL        ║
+   ║ INFRACCIÓN = PROHIBIDA = ACTION LEGAL         ║
    ╚═══════════════════════════════════════════════╝
    ```
 
@@ -173,68 +155,39 @@ Este laboratorio es un proyecto **educativo y académico** diseñado para enseñ
 ### Reporte de Problemas
 
 Si encuentra problemas de seguridad:
-1. Reportar inmediatamente al supervisor del laboratorio
-2. Documentar todos los pasos realizados
-3. No intentar soluciones sin autorización
-4. Mantener registros seguros de todos los hallazgos
-
-### Contacto Académico
-
-- Profesor Instructor: [Nombre del Profesor]
-- Email: [email@university.edu]
-- Oficina: [Ubicación del Laboratorio]
+1. Documentar todos los pasos realizados
+2. No intentar soluciones sin autorización
+3. Mantener registros seguros de todos los hallazgos
 
 ### Denuncias
 
 Reportar uso no autorizado o ilegal:
-- Autoridades de seguridad institucionales
-- Inspectores de cumplimiento académico
+- Autoridades de seguridad competentes
 - Agentes de cumplimiento legales apropiados
 
 ## Modificación y Distribución
 
 ### Permisos de Modificación
 
-1. **Educativo:** Modificar para mejorar el aprendizaje
-2. **Investigación:** Adaptar para nuevos ejercicios de laboratorio
-3. **Documentación:** Actualizar guías y documentación
-4. **Corrección:** Corregir bugs y errores
+1. **Investigación:** Adaptar para nuevos ejercicios de análisis
+2. **Documentación:** Actualizar guías y documentación
+3. **Corrección:** Corregir bugs y errores
 
 ### Restricciones
 
 - No redistribuir a partes no autorizadas
 - No vender o monetizar el código
 - Mantener todos los avisos legales intactos
-- Atribuir créditos académicos originales
-
-## Insignias y Reconocimiento
-
-### Requisitos de Atribución
-
-Si se utiliza este laboratorio:
-- Citar la fuente académica original
-- Incluir este aviso legal completo
-- Atribuir a los autores originales
-- Mantener todos los créditos intactos
-
-### Reconocimiento Aceptable
-
-- Usar logotipos institucionales para atribución
-- Reconocer contribuciones de colaboradores
-- Documentar adaptaciones y mejoras
-- Mantener créditos completos para mejoras
 
 ## Resumen de Cumplimiento Legal
 
-✅ **Aprobado para uso académico**
 ✅ **Documentación completa de seguridad**
 ✅ **Avisos visibles de protección**
 ✅ **Mecanismos de autodestrucción implementados**
-✅ **Supervisión académica requerida**
 
 **Declaración Final:**
-Este es un proyecto **completamente educativo y legal** diseñado para avanzar el conocimiento en ciberseguridad. Todo su uso debe seguir los principios de investigación académica responsable y permanecer dentro de los límites estrictamente definidos por la autorización institucional y las regulaciones legales aplicables.
+Todo uso debe seguir los principios de investigación responsable y permanecer dentro de los límites estrictamente definidos por la autorización y las regulaciones legales aplicables.
 
-**Disclaimer:** El usuario final asume toda la responsabilidad legal por este código. Los autores y cualquier institución asociada no son responsables de usos no autorizados o ilegales de este software.
+**Disclaimer:** El usuario final asume toda la responsabilidad legal por este código. Los autores no son responsables de usos no autorizados o ilegales de este software.
 
 *Última actualización: Octubre 2026*

@@ -24,7 +24,7 @@
 rule sandbox_detection:
   meta:
     description: Detecta sandboxes comunes
-    author: Educational Lab
+    author: Security Research
   strings:
     $sandbox_user = /sandbox|virus|malware|test/user
     $analysis_tool = /wireshark|procmon|processhacker|autoruns/ 
@@ -265,7 +265,7 @@ netsh advfirewall firewall add rule name="Bloquear Saliente Discord" dir=out act
 
 ## 8. Documentación Legal
 
-**Nota Educativa**: Este laboratorio es para fines exclusivamente educativos. Todas las actividades deben realizarse en entornos controlados y autorizados.
+**Nota**: Este proyecto es para entornos controlados y autorizados. Todas las actividades deben realizarse con autorización explícita.
 
 **Restricciones Éticas**:
 - Solo para VMs aisladas sin conectividad a internet
@@ -280,7 +280,7 @@ netsh advfirewall firewall add rule name="Bloquear Saliente Discord" dir=out act
 - Reportar cualquier descubrimiento de seguridad crítico
 
 **Recomendaciones de Compliance**:
-- Realizar investigación solo con propósito educativo
+- Realizar investigación solo con autorización explícita
 - Documentar el alcance y objetivos de cada ejercicio
 - Mantener datos de investigación seguros y cifrados
 - Reportar cualquier uso no autorizado o accidental

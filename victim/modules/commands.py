@@ -1,6 +1,6 @@
 """
 Módulo de comandos - Ejecución de acciones remotas
-Propósito educativo: Entender capacidades típicas de RATs
+Propósito: Entender capacidades típicas de RATs
 """
 
 import os

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Bot de Discord para C2 (Command and Control)
-Panel de control del atacante para el laboratorio educativo
+Panel de control del atacante
 """
 
 import os
